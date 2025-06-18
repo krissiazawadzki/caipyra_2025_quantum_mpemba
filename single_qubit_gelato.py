@@ -1,11 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import qutip
-import cmath
-import os 
-import sys
+import os, sys
 import scipy
-from scipy.linalg import logm, expm
+import argparse
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset, inset_axes
 
 sys.path.append('src/qtd/') 
@@ -16,21 +13,48 @@ from energies import energy, noneq_free_energy
 sys.path.append('src/qubit_ops/')
 from qubit_operators import sz_op, bloch_representation_to_computational, computational_to_bloch_representation
 
-
-
-#working parameters: seed =0, temperature_bath = 10
-#parameters
 n_sites = 1
-seed = 0 #0
-temperature_bath = 10
-t_max = 8
-dt = 0.01
-time_v = np.arange(0, t_max+dt, dt)
-omega = 5 #qubit frequency
 
-#data dir
-dir_data = 'data/'
+# Argument parser
+parser = argparse.ArgumentParser(description="Simulation parameters")
 
+# Working parameters
+parser.add_argument('--seed', type=int, default=0,
+                    help='Random seed (default: 0)')
+parser.add_argument('--temperature_bath', type=float, default=10,
+                    help='Bath temperature (default: 10)')
+
+# Time parameters
+parser.add_argument('--t_max', type=float, default=8,
+                    help='Maximum simulation time (default: 8)')
+parser.add_argument('--dt', type=float, default=0.01,
+                    help='Time step (default: 0.01)')
+
+# Qubit parameters
+parser.add_argument('--omega', type=float, default=5,
+                    help='Qubit frequency (default: 5)')
+
+# Data directory
+parser.add_argument('--dir_data', type=str, default='data/',
+                    help='Directory to save data (default: data/)')
+
+# Parse arguments
+args = parser.parse_args()
+
+# Use arguments
+seed = args.seed
+temperature_bath = args.temperature_bath
+t_max = args.t_max
+dt = args.dt
+omega = args.omega
+dir_data = args.dir_data
+
+
+# Create time vector
+time_v = np.arange(0, t_max + dt, dt)
+
+# Create data directory if it doesn't exist
+os.makedirs(dir_data, exist_ok=True)
 
 #hamiltonian
 #diagonalized 1-qubit hamiltonian
@@ -54,15 +78,7 @@ right_eigv_vectorized_lindbladian = right_eigv_vectorized_lindbladian[:,idx]
 spectrum = np.column_stack((np.real(eigw_vectorized_lindbladian), np.imag(eigw_vectorized_lindbladian))) 
 
 np.savetxt(f'{dir_data}/spectrum.txt', spectrum, fmt='%.15f', delimiter='\t', comments='')
-###
-#original state
-def mixed_state_coherence(state):
-    #compute the von neumann entropy of the diagonal part of the state minus the von neumann entropy of the state
-    #NOTE: this is the coherence of the state
-    diagonal_part = np.diag(np.diag(state))
-    entropy_diagonal_part = -np.trace(diagonal_part @ logm(diagonal_part))
-    entropy_state = -np.trace(state @ logm(state))
-    return entropy_diagonal_part - entropy_state
+
 
 
 

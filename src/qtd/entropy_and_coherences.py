@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.linalg import logm
 
 def Svn(rho: np.array):
     """
@@ -211,3 +212,26 @@ def Gibbs_state(E_n: np.array, Psi_n: np.array, beta: float, return_Z=True):
         return rho_Gibbs
 
     return rho_Gibbs, Z
+
+
+def mixed_state_coherence(state: np.ndarray) -> float:
+    """
+    Computes the quantum coherence of a mixed quantum state,
+    defined as the **relative entropy of coherence**.
+
+    Formula:
+        C_rel(rho) = S(rho_diag) - S(rho)
+
+    where S(rho) is the von Neumann entropy:
+        S(rho) = -Tr[rho log(rho)]
+
+    Parameters:
+        state (np.ndarray): Density matrix (Hermitian, trace 1, positive semi-definite).
+
+    Returns:
+        float: Coherence of the state (in nats).
+    """
+    diagonal_part = np.diag(np.diag(state))
+    entropy_diagonal_part = -np.trace(diagonal_part @ logm(diagonal_part))
+    entropy_state = -np.trace(state @ logm(state))
+    return entropy_diagonal_part - entropy_state
