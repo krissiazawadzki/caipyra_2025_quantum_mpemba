@@ -253,8 +253,8 @@ np.savetxt(f'{dir_data}/bloch_steady_state.txt', np.real(steady_state_bloch),  f
 #save state dynamics in Bloch sphere
 state_original_every_t_bloch_stack = np.column_stack((time_v[:150], np.real(state_original_every_t_bloch)[0,:150], np.real(state_original_every_t_bloch)[1,:150], np.real(state_original_every_t_bloch)[2,:150] ) )
 state_diagonalized_every_t_bloch_stack = np.column_stack((time_v[:150], np.real(state_diagonalized_every_t_bloch)[0,:150], np.real(state_diagonalized_every_t_bloch)[1,:150], np.real(state_diagonalized_every_t_bloch)[2,:150] ) )
-np.savetxt("state_original_every_t_bloch.txt",state_original_every_t_bloch_stack)
-np.savetxt("state_diagonalized_every_t_bloch.txt",state_diagonalized_every_t_bloch_stack)
+np.savetxt(f"{dir_data}/state_original_every_t_bloch.txt",state_original_every_t_bloch_stack)
+np.savetxt(f"{dir_data}/state_diagonalized_every_t_bloch.txt",state_diagonalized_every_t_bloch_stack)
 
 #save the entropy production
 total_relative_entropy_original_stack = np.column_stack((time_v[:150], np.real( np.array(classical_relative_entropy_original[:150]) + np.array(quantum_relative_entropy_original[:150]) ) ) )
