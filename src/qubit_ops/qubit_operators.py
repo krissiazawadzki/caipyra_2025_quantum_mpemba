@@ -1,11 +1,12 @@
 import numpy as np
+from typing import List
 
 # Pauli operators
 sx_op = np.array([[0, 1], [1, 0]], dtype=complex)
 sy_op = np.array([[0, -1j], [1j, 0]], dtype=complex)
 sz_op = np.array([[1, 0], [0, -1]], dtype=complex)
 
-def spherical_to_cartesian(r: float, theta: float, phi: float) -> list[float]:
+def q_spherical_to_cartesian(r: float, theta: float, phi: float) -> List[float]:
     """
     Converts spherical coordinates to Cartesian coordinates.
 
@@ -52,9 +53,9 @@ def computational_to_bloch_representation(state: np.ndarray) -> np.ndarray:
         np.ndarray: 3-element array with Bloch vector components (rx, ry, rz).
     """
     # Compute expectation values of Pauli operators
-    rx = 2 * np.trace(sx_op @ state)
-    ry = 2 * np.trace(sy_op @ state)
-    rz = 2 * np.trace(sz_op @ state)
+    rx = 2 * np.trace(sx_op @ state.copy())
+    ry = 2 * np.trace(sy_op @ state.copy())
+    rz = 2 * np.trace(sz_op @ state.copy())
 
     # Return only the real part (imaginary parts should be zero up to numerical error)
     return np.real(np.array([rx, ry, rz]))

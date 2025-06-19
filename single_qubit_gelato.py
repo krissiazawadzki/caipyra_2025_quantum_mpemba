@@ -19,24 +19,25 @@ n_sites = 1
 parser = argparse.ArgumentParser(description="Simulation parameters")
 
 # Working parameters
-parser.add_argument('--seed', type=int, default=0,
-                    help='Random seed (default: 0)')
-parser.add_argument('--temperature_bath', type=float, default=10,
-                    help='Bath temperature (default: 10)')
+parser.add_argument('--seed', type=int, default=0,help='Random seed (default: 0)')
+parser.add_argument('--temperature_bath', type=float, default=10,help='Bath temperature (default: 10)')
 
 # Time parameters
-parser.add_argument('--t_max', type=float, default=8,
-                    help='Maximum simulation time (default: 8)')
-parser.add_argument('--dt', type=float, default=0.01,
-                    help='Time step (default: 0.01)')
+parser.add_argument('--t_max', type=float, default=8,help='Maximum simulation time (default: 8)')
+parser.add_argument('--dt', type=float, default=0.01,help='Time step (default: 0.01)')
 
 # Qubit parameters
-parser.add_argument('--omega', type=float, default=5,
-                    help='Qubit frequency (default: 5)')
+parser.add_argument('--omega', type=float, default=5,help='Qubit frequency (default: 5)')
+
+# Initial Bloch vectors
+parser.add_argument('--initial_state', type=float, nargs=3, default=[0.276, 0.359, 0.303],help='Initial state Bloch vectors (e.g., rx ry rz)')
+
+# Flag to request random state
+parser.add_argument('--random_initial_state', action='store_true',help='If set, use a random initial state (overrides --initial_state)')
+
 
 # Data directory
-parser.add_argument('--dir_data', type=str, default='data/',
-                    help='Directory to save data (default: data/)')
+parser.add_argument('--dir_data', type=str, default='data/',help='Directory to save data (default: data/)')
 
 # Parse arguments
 args = parser.parse_args()
@@ -49,47 +50,43 @@ dt = args.dt
 omega = args.omega
 dir_data = args.dir_data
 
-
 # Create time vector
 time_v = np.arange(0, t_max + dt, dt)
+Nt = len(time_v)
 
 # Create data directory if it doesn't exist
 os.makedirs(dir_data, exist_ok=True)
 
-#hamiltonian
-#diagonalized 1-qubit hamiltonian
+# random seed 
 np.random.seed(seed)
 
-#Hamiltonian prop. to \sigma_z
+# Hamiltonian prop. to \sigma_z
 ham = omega*sz_op
-#get Hamiltonian eigenvalues
+
+# get Hamiltonian eigenvalues
 eigw_hamiltonian = np.linalg.eigh(ham)[0]
 
-#davies map
+# Davies map
 jump_op_list = vec_lind.jump_operators_for_davies_map_spin_onehalf(n_sites, ham, 1./temperature_bath)
 lindbladian_vectorized = vec_lind.vectorized_lindbladian(n_sites, jump_op_list, np.diag(eigw_hamiltonian) )
-eigw_vectorized_lindbladian, left_eigv_vectorized_lindbladian, right_eigv_vectorized_lindbladian = scipy.linalg.eig(lindbladian_vectorized, left=True, right=True)
-idx = np.argsort(np.abs(np.real(eigw_vectorized_lindbladian)))
-eigw_vectorized_lindbladian = eigw_vectorized_lindbladian[idx]
-left_eigv_vectorized_lindbladian = left_eigv_vectorized_lindbladian[:,idx]
-right_eigv_vectorized_lindbladian = right_eigv_vectorized_lindbladian[:,idx]
 
-###save spectrum of the lindbladian for plots
-spectrum = np.column_stack((np.real(eigw_vectorized_lindbladian), np.imag(eigw_vectorized_lindbladian))) 
+# spectrum of the generator
+spectrum, eigw_vectorized_lindbladian, left_eigv_vectorized_lindbladian, right_eigv_vectorized_lindbladian = vec_lind.spectrum_of_vectorized_generator(lindbladian_vectorized)
 
 np.savetxt(f'{dir_data}/spectrum.txt', spectrum, fmt='%.15f', delimiter='\t', comments='')
 
+if args.random_initial_state:
+    r_vector = np.random.rand(3)
+    r_vector = r_vector / np.linalg.norm(r_vector)
+    # multiply r_vector by a diagonalized number between 0 (maximally mixed) and 1 (pure)
+    r_vector = r_vector * np.random.rand(1)
+else:
+    r_vector = np.array(args.initial_state)
 
-
-
-#NOTE: seed is set above in the Hamiltonian computation!
-r_vector = np.random.rand(3)
-r_vector = r_vector / np.linalg.norm(r_vector)
 print('r_vector = ', r_vector)
-#multiply r_vector by a diagonalized number between 0 (maximally mixed) and 1 (pure)
-r_vector = r_vector * np.random.rand(1)
-#compute original state
-state_original = bloch_representation_to_computational( r_vector )
+
+# compute density matrix from r_vector
+state_original = bloch_representation_to_computational(r_vector)
 print("state_original = \n ", state_original)
 
 #diagonalize original state
@@ -191,8 +188,8 @@ axins = inset_axes(axs, width="65%", height="85%",bbox_to_anchor=(.3, .3, .6, .5
 axins.semilogy(time_v[:], distance_original[:], label='original state', color=color_original)
 axins.semilogy(time_v[:], distance_diagonalized[:], label='diagonalized state', color=color_diagonalization)
 #fit with lambda2 and lambda4
-lambda_2 = distance_original[-1]*np.exp(np.real(eigw_vectorized_lindbladian[1])*(time_v[:]-time_v[-1]))
-lambda_4 = distance_diagonalized[-1]*np.exp(np.real(eigw_vectorized_lindbladian[3])*(time_v[:]-time_v[-1]))
+lambda_2 = distance_original[-1]*np.exp(spectrum[1,0]*(time_v[:]-time_v[-1]))
+lambda_4 = distance_diagonalized[-1]*np.exp(spectrum[3,0]*(time_v[:]-time_v[-1]))
 axins.semilogy(time_v[:], lambda_2, label='$\exp(\Re{(\lambda_2)}t) $', linestyle='dashed', color = color_original)
 axins.semilogy(time_v[:], lambda_4, label='$\exp(\Re{(\lambda_3)}t) = \exp(\Re{(\lambda_4)}t) $', linestyle='dashed', color = color_diagonalization)
 
