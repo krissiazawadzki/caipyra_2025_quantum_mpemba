@@ -18,6 +18,10 @@ simulacao/
     │   └── plot_sphere_and_free_energies_evolution.py
 ```
 
+Sumário:
+- ```qtd/``` implementamos funções que calculam quantidades termodinâmicas e constroem o mapa de Davies na versão vetorizada.
+- ```qubit_ops/``` definições de operadores de um qubit.
+- ```plot_frufrus/``` funções para customizar os plots do qubit da esfera de Bloch.
 
 ## Dependências
 | :gift: Pacote | :white_check_mark: Versão | :exclamation: Dependências | :information_source: Instalação recomendada | 
@@ -33,4 +37,10 @@ simulacao/
 É possível rodar um exemplo iterativamente e armazenar os resultados da simulação na pasta data/.
 
 ## Uso
-Pode-se rodar o código ```single_qubit_gelato.py``` com argumentos na linha de comando. A notebook ```exemplo_mpemba_qubit.ipynb```, por sua vez, demonstra o passo a passo da simulação.
+Pode-se rodar o código ```single_qubit_gelato.py``` com argumentos na linha de comando. Exemplo:
+```
+    python3 single_qubit_gelato.py --temperature_bath 10.0 --omega 5.0 --initial_state 0.276 0.359 0.303
+```
+
+
+A notebook ```exemplo_mpemba_qubit.ipynb```, por sua vez, demonstra o passo a passo da simulação.
