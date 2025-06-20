@@ -43,4 +43,4 @@ Pode-se rodar o código ```single_qubit_gelato.py``` com argumentos na linha de 
 ```
 
 
-A notebook ```exemplo_mpemba_qubit.ipynb```, por sua vez, demonstra o passo a passo da simulação.
+A notebook [exemplo_mpemba_qubit.ipynb](./exemplo_mpemba_qubit.ipynb), por sua vez, demonstra o passo a passo da simulação.
