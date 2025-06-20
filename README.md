@@ -33,4 +33,4 @@ simulacao/
 É possível rodar um exemplo iterativamente e armazenar os resultados da simulação na pasta data/.
 
 ## Uso
-Pode-se rodar o código ```single_qubit_gelato.py''' com argumentos na linha de comando. A notebook ```exemplo_mpemba_qubit.ipynb''', por sua vez, demonstra o passo a passo da simulação.
+Pode-se rodar o código ```single_qubit_gelato.py``` com argumentos na linha de comando. A notebook ```exemplo_mpemba_qubit.ipynb```, por sua vez, demonstra o passo a passo da simulação.
